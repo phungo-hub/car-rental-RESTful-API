@@ -1,4 +1,4 @@
-package com.carrental.model.dto.response;
+package com.carrental.payload.response;
 
 public class ResponseMessage {
     private String message;

@@ -1,9 +1,8 @@
 package com.carrental.controller;
 
 import com.carrental.model.dto.CategoryDto;
-import com.carrental.model.dto.response.ResponseMessage;
+import com.carrental.payload.response.ResponseMessage;
 import com.carrental.model.service.CategoryService;
-import com.carrental.model.service.impl.CategoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

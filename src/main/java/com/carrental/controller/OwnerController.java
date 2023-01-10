@@ -1,9 +1,8 @@
 package com.carrental.controller;
 
 import com.carrental.model.dto.OwnerDto;
-import com.carrental.model.dto.response.ResponseMessage;
+import com.carrental.payload.response.ResponseMessage;
 import com.carrental.model.service.OwnerService;
-import com.carrental.model.service.impl.OwnerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/api/owner")
+@RequestMapping("/api/owner.")
 public class OwnerController {
     @Autowired
     OwnerService ownerService;

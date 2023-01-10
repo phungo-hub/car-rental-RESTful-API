@@ -1,4 +1,4 @@
-package com.carrental.model.dto.request;
+package com.carrental.payload.request;
 
 import java.util.Set;
 

@@ -2,6 +2,8 @@ package com.carrental.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -11,20 +13,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "user" , uniqueConstraints = {
-        @UniqueConstraint(columnNames = {
-                "username"
-        }),
-        @UniqueConstraint(columnNames = {
-                "email"
-        })
-})
+@Table(name = "users",
+        uniqueConstraints = {@UniqueConstraint(name = "users_uk",
+                columnNames = {"email", "username"})})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
     @NotBlank
     @Size(min = 3, max = 50)
+    @Column(name = "fullname")
     private String name;
 
     @NotBlank
@@ -42,33 +41,19 @@ public class User {
     @Size(min = 6 ,max = 100)
     private String password;
 
-    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles" ,
+    @JoinTable(name = "users_roles" ,
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Role> roles = new HashSet<Role>();
 
-
-    @Lob
-    private String blobString;
-
-    @Lob
     private String avatar;
 
-    public User(Long id, Set<Role> roles, String blobString, String avatar) {
+    public User(Long id, Set<Role> roles, String avatar) {
         this.id = id;
         this.roles = roles;
-        this.blobString = blobString;
         this.avatar = avatar;
-    }
-
-    public String getBlobString() {
-        return blobString;
-    }
-
-    public void setBlobString(String blobString) {
-        this.blobString = blobString;
     }
 
     public String getAvatar() {
