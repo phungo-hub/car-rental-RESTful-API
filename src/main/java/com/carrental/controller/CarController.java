@@ -1,6 +1,8 @@
 package com.carrental.controller;
 
 import com.carrental.model.dto.CarDto;
+import com.carrental.model.service.SecurityService;
+import com.carrental.model.service.UserService;
 import com.carrental.payload.response.ResponseMessage;
 import com.carrental.model.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +15,15 @@ import java.util.Optional;
 @Service
 @RequestMapping("/api/car")
 public class CarController {
+
+    @Autowired
+    private SecurityService securityService;
     @Autowired
     CarService carService;
 
     @PostMapping
-    public ResponseEntity<?> createCar(@RequestBody CarDto carDto) {
+    public ResponseEntity<?> createCar(@RequestBody CarDto carDto,
+                                       @RequestHeader("Authorization") final String authToken) {
         if (carDto.getName().trim().isEmpty()) {
             return new ResponseEntity<>(new ResponseMessage("The name is required!"), HttpStatus.OK);
         }
@@ -26,7 +32,10 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<?> showListCar() {
+    public ResponseEntity<?> showListCar(@RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Iterable<CarDto> cars = carService.findAll();
         if (cars == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -35,7 +44,11 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CarDto carDto) {
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CarDto carDto,
+                                            @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<CarDto> carDto1 = carService.findById(id);
 
         if (!carDto1.isPresent()) {
@@ -50,7 +63,11 @@ public class CarController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id){
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id,
+                                            @RequestHeader("Authorization") final String authToken){
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<CarDto> carDto = carService.findById(id);
 
         if (!carDto.isPresent()) {

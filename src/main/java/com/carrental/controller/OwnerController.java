@@ -12,7 +12,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/api/owner.")
+@RequestMapping("/api/owner")
 public class OwnerController {
     @Autowired
     OwnerService ownerService;
