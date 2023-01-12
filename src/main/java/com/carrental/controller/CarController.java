@@ -2,7 +2,6 @@ package com.carrental.controller;
 
 import com.carrental.model.dto.CarDto;
 import com.carrental.model.service.SecurityService;
-import com.carrental.model.service.UserService;
 import com.carrental.payload.response.ResponseMessage;
 import com.carrental.model.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,9 @@ public class CarController {
     @PostMapping
     public ResponseEntity<?> createCar(@RequestBody CarDto carDto,
                                        @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         if (carDto.getName().trim().isEmpty()) {
             return new ResponseEntity<>(new ResponseMessage("The name is required!"), HttpStatus.OK);
         }

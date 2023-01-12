@@ -1,6 +1,7 @@
 package com.carrental.controller;
 
 import com.carrental.model.dto.CategoryDto;
+import com.carrental.model.service.SecurityService;
 import com.carrental.payload.response.ResponseMessage;
 import com.carrental.model.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,15 @@ public class CategoryController {
     @Autowired
     CategoryService categoryService;
 
+    @Autowired
+    private SecurityService securityService;
+
     @PostMapping
-    public ResponseEntity<?> createCategory(@RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<?> createCategory(@RequestBody CategoryDto categoryDto,
+                                            @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         if (categoryDto.getName().trim().isEmpty()) {
             return new ResponseEntity<>(new ResponseMessage("The name is required!"), HttpStatus.OK);
         }
@@ -26,7 +34,10 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> showListCategory() {
+    public ResponseEntity<?> showListCategory(@RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Iterable<CategoryDto> categories = categoryService.findAll();
         if (categories == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -35,7 +46,11 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto,
+                                            @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<CategoryDto> categoryDto1 = categoryService.findById(id);
 
         if (!categoryDto1.isPresent()) {
@@ -50,7 +65,11 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id){
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id,
+                                            @RequestHeader("Authorization") final String authToken){
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<CategoryDto> categoryDto = categoryService.findById(id);
 
         if (!categoryDto.isPresent()) {

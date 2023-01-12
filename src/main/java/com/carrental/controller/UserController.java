@@ -1,6 +1,9 @@
 package com.carrental.controller;
 
 import com.carrental.model.dto.UserDto;
+import com.carrental.model.service.RoleService;
+import com.carrental.model.service.SecurityService;
+import com.carrental.model.service.UserService;
 import com.carrental.payload.response.ResponseMessage;
 import com.carrental.model.service.impl.RoleServiceImpl;
 import com.carrental.model.service.impl.UserServiceImpl;
@@ -15,12 +18,17 @@ import java.util.Optional;
 @RequestMapping("/api/user")
 public class UserController {
     @Autowired
-    UserServiceImpl userService;
+    UserService userService;
     @Autowired
-    RoleServiceImpl roleService;
+    RoleService roleService;
+    @Autowired
+    SecurityService securityService;
 
     @GetMapping
-    public ResponseEntity<?> showUsers() {
+    public ResponseEntity<?> showUsers(@RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Iterable<UserDto> users = userService.findAll();
         if (users == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -29,7 +37,11 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto,
+                                          @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         if (userService.existsByUsername(userDto.getUsername())) {
             return new ResponseEntity<>(new ResponseMessage("Fail -> Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
@@ -46,7 +58,11 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto carDto) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto carDto,
+                                        @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<UserDto> userDto1 = userService.findById(id);
 
         if (!userDto1.isPresent()) {
@@ -60,7 +76,11 @@ public class UserController {
         return new ResponseEntity<>(new ResponseMessage("Update success!"), HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id){
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id,
+                                            @RequestHeader("Authorization") final String authToken){
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<UserDto> userDto = userService.findById(id);
 
         if (!userDto.isPresent()) {

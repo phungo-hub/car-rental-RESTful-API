@@ -1,6 +1,7 @@
 package com.carrental.controller;
 
 import com.carrental.model.dto.OwnerDto;
+import com.carrental.model.service.SecurityService;
 import com.carrental.payload.response.ResponseMessage;
 import com.carrental.model.service.OwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,15 @@ public class OwnerController {
     @Autowired
     OwnerService ownerService;
 
+    @Autowired
+    SecurityService securityService;
+
     @PostMapping
-    public ResponseEntity<?> createOwner(@RequestBody OwnerDto ownerDto) {
+    public ResponseEntity<?> createOwner(@RequestBody OwnerDto ownerDto,
+                                         @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         if (ownerDto.getName().trim().isEmpty()) {
             return new ResponseEntity<>(new ResponseMessage("The name is required!"), HttpStatus.OK);
         }
@@ -27,7 +35,10 @@ public class OwnerController {
     }
 
     @GetMapping
-    public ResponseEntity<?> showListOwner() {
+    public ResponseEntity<?> showListOwner(@RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Iterable<OwnerDto> owners = ownerService.findAll();
         if (owners == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -36,7 +47,11 @@ public class OwnerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOwner(@PathVariable Long id, @RequestBody OwnerDto ownerDto) {
+    public ResponseEntity<?> updateOwner(@PathVariable Long id, @RequestBody OwnerDto ownerDto,
+                                         @RequestHeader("Authorization") final String authToken) {
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<OwnerDto> ownerDto1 = ownerService.findById(id);
 
         if (!ownerDto1.isPresent()) {
@@ -51,7 +66,11 @@ public class OwnerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOwner(@PathVariable Long id){
+    public ResponseEntity<?> deleteOwner(@PathVariable Long id,
+                                         @RequestHeader("Authorization") final String authToken){
+        if (!securityService.isAuthenticated() && !securityService.isValidToken(authToken)) {
+            return new ResponseEntity<String>("Responding with unauthorized error. Message - {}", HttpStatus.UNAUTHORIZED);
+        }
         Optional<OwnerDto> ownerDto = ownerService.findById(id);
 
         if (!ownerDto.isPresent()) {
